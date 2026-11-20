@@ -1,4 +1,14 @@
-import { Component, Injectable, inject, signal, input, output, computed } from '@angular/core';
+import {
+  Component,
+  Injectable,
+  inject,
+  signal,
+  input,
+  output,
+  computed,
+  Signal,
+  WritableSignal,
+} from '@angular/core';
 import { FormField, FormRoot, form, required, minLength } from '@angular/forms/signals';
 import { PageHeader } from '../../../shared/ui';
 import { WishlistItem } from './wishlist-item';
@@ -7,17 +17,17 @@ import { WishlistItem } from './wishlist-item';
 
 @Injectable({ providedIn: 'root' })
 export class WishlistStore {
-  private _slugs  = signal<string[]>([]);
+  private _slugs: WritableSignal<string[]> = signal<string[]>([]);
 
-  slugs = this._slugs.asReadonly();
-  count = computed(() => this._slugs().length)
+  slugs: Signal<string[]> = this._slugs.asReadonly();
+  count: Signal<number> = computed(() => this._slugs().length);
 
-  toggleOnList(slug: string) {
-    this._slugs.update((sl) => this.has(slug) ? sl.filter((s) => s !== slug) : [...sl, slug]);
+  toggleOnList(slug: string): void {
+    this._slugs.update((sl) => (this.has(slug) ? sl.filter((s) => s !== slug) : [...sl, slug]));
   }
 
   has(lookFor: string): boolean {
-    return this._slugs().includes(lookFor)
+    return this._slugs().includes(lookFor);
   }
 }
 
@@ -209,8 +219,23 @@ export class WishlistPage {
         action: async () => {
           console.log(this.detailsModel());
           // this.wishlist.saveDetails(this.detailsModel());
+          this.detailsModel.set({ name: '...', description: '', giftSlug: '' });
+          this.detailsForm().reset();
         },
       },
     },
   );
 }
+
+
+
+// JavaScript syntactic sugar (lukier składniowy) to Java Mapper:
+
+// Literał obiektowy | Plane JavaScript Object
+// {} === new Object()
+
+// Literał tablicowy
+// [] === new Array()
+
+// Literał RegExp
+// /(?:)/ === new RegExp()
