@@ -4,3 +4,5 @@
 
 // Syntactic sugar (od razu export z './wishlist.routes');
 export { wishlistRoutes } from './wishlist.routes';
+// prywatne w ramach feature-wishlist
+// export { WishlistItem } from './wishlist-item';

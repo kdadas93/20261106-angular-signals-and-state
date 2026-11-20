@@ -1,9 +1,10 @@
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { FormField, FormRoot, form, required, minLength } from '@angular/forms/signals';
 import { PageHeader } from '../../../shared/ui';
-import { WishlistItem, WishlistToggle } from '../ui';
+import { WishlistToggle } from '../ui';
 import { WishlistStore } from '../data-access';
 import { WishlistDetails } from '../util';
+import { WishlistItem } from './wishlist-item';
 
 // data-access ────────────────────────────────────────────────────────────────
 
@@ -24,6 +25,7 @@ const DEMO_SLUGS = [
   'typeforge-low-profile-keyboard',
   'typeforge-ergonomic-split-keyboard',
   'typeforge-60-compact-keyboard',
+  'sample-404'
 ];
 
 @Component({

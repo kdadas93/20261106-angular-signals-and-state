@@ -27,3 +27,20 @@ export function toProblem(error: unknown): ProblemDetails {
   }
   return { title: error instanceof Error ? error.message : 'Unknown error', status: 0 };
 }
+
+/*
+// explain unknown
+let x: any = 2
+x = '?'
+console.log(x);
+
+let y: unknown = 20
+y = '!';
+console.log(y);
+
+const s: string = x;
+const z: string = y;
+
+console.log(s);
+console.log(z);
+*/
