@@ -5,12 +5,11 @@ import {
 } from '@angular/core';
 import { FormField, FormRoot, form, required, minLength } from '@angular/forms/signals';
 import { PageHeader } from '../../../shared/ui';
-import { WishlistItem } from './wishlist-item';
-import { WishlistStore } from './wishlist-store';
-import { WishlistToggle } from './wishlist-toggle';
+import { WishlistItem, WishlistToggle } from '../ui';
+import { WishlistStore } from '../data-access';
+import { WishlistDetails } from '../util';
 
 // data-access ────────────────────────────────────────────────────────────────
-
 
 
 // const myStore = new WishlistStore();
@@ -30,13 +29,6 @@ const DEMO_SLUGS = [
   'typeforge-ergonomic-split-keyboard',
   'typeforge-60-compact-keyboard',
 ];
-
-interface WishlistDetails {
-  name: string;
-  description: string;
-
-  giftSlug: string;
-}
 
 @Component({
   selector: 'app-wishlist-page',

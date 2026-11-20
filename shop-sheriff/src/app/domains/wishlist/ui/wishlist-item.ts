@@ -2,16 +2,7 @@ import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { httpResource } from '@angular/common/http';
 import { PricePipe } from '../../../shared/ui';
-
-interface WishlistProduct {
-  id: string;
-  sku: string;
-  name: string;
-  description: string;
-  slug: string;
-  priceCents: number;
-  stock: number;
-}
+import { WishlistProduct } from '../util';
 
 @Component({
   imports: [RouterLink, PricePipe],
