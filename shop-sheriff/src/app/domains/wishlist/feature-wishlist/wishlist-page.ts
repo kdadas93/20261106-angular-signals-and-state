@@ -1,8 +1,4 @@
-import {
-  Component,
-  inject,
-  signal,
-} from '@angular/core';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { FormField, FormRoot, form, required, minLength } from '@angular/forms/signals';
 import { PageHeader } from '../../../shared/ui';
 import { WishlistItem, WishlistToggle } from '../ui';
@@ -89,7 +85,11 @@ const DEMO_SLUGS = [
       </div>
 
       <div class="d-flex gap-2">
-        <button type="submit" [style.opacity]="detailsForm().invalid() ? 0.5 : 1" class="btn btn-primary">
+        <button
+          type="submit"
+          [style.opacity]="detailsForm().invalid() ? 0.5 : 1"
+          class="btn btn-primary"
+        >
           Save
         </button>
       </div>
@@ -105,14 +105,16 @@ const DEMO_SLUGS = [
       <ul class="list-group">
         @for (slug of wishlist.slugs(); track slug) {
           <app-wishlist-item [slug]="slug" />
+          <!-- protected readonly wishlistStore = inject(WishlistStore); -->
         }
       </ul>
     } @else {
       <p class="text-body-secondary">Nothing here yet.</p>
     }
   `,
+  // providers: [WishlistStore],
 })
-export class WishlistPage {
+export class WishlistPage /*implements OnInit*/ {
   protected readonly wishlist = inject(WishlistStore);
   protected readonly demoSlugs = DEMO_SLUGS;
 
@@ -135,14 +137,20 @@ export class WishlistPage {
     {
       submission: {
         action: async () => {
-          console.log(this.detailsModel());
-          // this.wishlist.saveDetails(this.detailsModel());
+          // console.log(this.detailsModel());
+          this.wishlist.saveDetails(this.detailsModel());
           this.detailsModel.set({ name: '...', description: '', giftSlug: '' });
           this.detailsForm().reset();
         },
       },
     },
   );
+
+  constructor() {
+    effect(() => {
+      console.log('New form details', this.wishlist.details());
+    });
+  }
 }
 
 
