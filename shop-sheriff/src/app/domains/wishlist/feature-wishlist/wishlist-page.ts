@@ -37,8 +37,8 @@ const DEMO_SLUGS = [
         <li class="list-group-item d-flex justify-content-between align-items-center">
           {{ slug }}
           <app-wishlist-toggle
-            [active]="wishlist.has(slug)"
-            (toggled)="wishlist.toggleOnList(slug)"
+            [active]="wishlistStore.has(slug)"
+            (toggled)="wishlistStore.toggleOnList(slug)"
           />
         </li>
       }
@@ -99,11 +99,11 @@ const DEMO_SLUGS = [
     </form>
 
     <h2 class="h5 mt-4 d-flex justify-content-between">
-      Liked<span class="badge text-bg-danger">{{ wishlist.count() }}</span>
+      Liked<span class="badge text-bg-danger">{{ wishlistStore.count() }}</span>
     </h2>
-    @if (wishlist.count()) {
+    @if (wishlistStore.count()) {
       <ul class="list-group">
-        @for (slug of wishlist.slugs(); track slug) {
+        @for (slug of wishlistStore.slugs(); track slug) {
           <app-wishlist-item [slug]="slug" />
           <!-- protected readonly wishlistStore = inject(WishlistStore); -->
         }
@@ -115,7 +115,7 @@ const DEMO_SLUGS = [
   // providers: [WishlistStore],
 })
 export class WishlistPage /*implements OnInit*/ {
-  protected readonly wishlist = inject(WishlistStore);
+  protected readonly wishlistStore = inject(WishlistStore);
   protected readonly demoSlugs = DEMO_SLUGS;
 
   // Signal Forms docs: https://angular.dev/guide/forms/signals/overview
@@ -123,9 +123,11 @@ export class WishlistPage /*implements OnInit*/ {
   //   validation: https://angular.dev/guide/forms/signals/validation  (async: …/async-operations)
   //   submit:     https://angular.dev/guide/forms/signals/form-submission
   private readonly detailsModel = signal<WishlistDetails>({
-    name: '',
-    description: '',
-    giftSlug: '',
+    // name: '',
+    // description: '',
+    // giftSlug: '',
+    // todo(later): linkedSignal
+    ...this.wishlistStore.details(),
   });
 
   protected readonly detailsForm = form(
@@ -138,7 +140,7 @@ export class WishlistPage /*implements OnInit*/ {
       submission: {
         action: async () => {
           // console.log(this.detailsModel());
-          this.wishlist.saveDetails(this.detailsModel());
+          this.wishlistStore.saveDetails(this.detailsModel());
           this.detailsModel.set({ name: '...', description: '', giftSlug: '' });
           this.detailsForm().reset();
         },
@@ -146,11 +148,18 @@ export class WishlistPage /*implements OnInit*/ {
     },
   );
 
+  private readonly log = effect(() => {
+    console.log('New form details', this.wishlistStore.details());
+  });
+
+  /*
+  // todo(later): injection context explain
   constructor() {
     effect(() => {
       console.log('New form details', this.wishlist.details());
     });
   }
+  */
 }
 
 
