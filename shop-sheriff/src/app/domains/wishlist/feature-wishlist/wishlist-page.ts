@@ -1,65 +1,17 @@
 import {
   Component,
-  Injectable,
   inject,
   signal,
-  input,
-  output,
-  computed,
-  Signal,
-  WritableSignal,
 } from '@angular/core';
 import { FormField, FormRoot, form, required, minLength } from '@angular/forms/signals';
 import { PageHeader } from '../../../shared/ui';
 import { WishlistItem } from './wishlist-item';
+import { WishlistStore } from './wishlist-store';
+import { WishlistToggle } from './wishlist-toggle';
 
 // data-access ────────────────────────────────────────────────────────────────
 
-@Injectable({ providedIn: 'root' })
-export class WishlistStore {
-  private _slugs: WritableSignal<string[]> = signal<string[]>([]);
 
-  slugs: Signal<string[]> = this._slugs.asReadonly();
-  count: Signal<number> = computed(() => this._slugs().length);
-
-  toggleOnList(slug: string): void {
-    this._slugs.update((sl) => (this.has(slug) ? sl.filter((s) => s !== slug) : [...sl, slug]));
-  }
-
-  has(lookFor: string): boolean {
-    return this._slugs().includes(lookFor);
-  }
-}
-
-/*
-@Injectable({ providedIn: 'root' })
-export class WishlistStore {
-  private _slugs: string[] = [
-    'typeforge-tkl-mechanical-keyboard',
-    'typeforge-75-wireless-keyboard',
-  ];
-
-  get slugs(): readonly string[] {
-    return this._slugs;
-  }
-
-  get count(): number {
-    return this._slugs.length;
-  }
-
-  toggleOnList(slug: string) {
-    if(this.has(slug)) {
-      this._slugs = this._slugs.filter((s) => s !== slug);
-    } else {
-      this._slugs.push(slug);
-    }
-  }
-
-  has(lookFor: string): boolean {
-    return this._slugs.includes(lookFor)
-  }
-}
-* */
 
 // const myStore = new WishlistStore();
 //
@@ -67,33 +19,7 @@ export class WishlistStore {
 
 // component (/ui) ────────────────────────────────────────────────────────────────
 
-@Component({
-  selector: 'app-wishlist-toggle',
-  template: `
-    <button
-      type="button"
-      class="btn btn-sm"
-      [class.btn-danger]="active()"
-      [class.btn-outline-danger]="!active()"
-      [attr.aria-pressed]="active()"
-      [attr.aria-label]="active() ? 'Remove from wishlist' : 'Add to wishlist'"
-      (click)="addToList.emit()"
-    >
-      {{ active() ? '♥' : '♡' }}
-    </button>
-  `,
-})
-export class WishlistToggle {
-  // @Input()
-  readonly active = input(false);
-  // @Output()
-  readonly addToList = output<void>();
 
-  // RUNTIME Exception - widoczny będzie w konsoli przeglądarki (f12) narzędzia DevTools
-  // throwError() {
-  //   throw new Error('!');
-  // }
-}
 // ─────────────────────────────────────────────────────────────────
 
 /** Real slugs from shop-api. */
@@ -124,7 +50,7 @@ interface WishlistDetails {
           {{ slug }}
           <app-wishlist-toggle
             [active]="wishlist.has(slug)"
-            (addToList)="wishlist.toggleOnList(slug)"
+            (toggled)="wishlist.toggleOnList(slug)"
           />
         </li>
       }
