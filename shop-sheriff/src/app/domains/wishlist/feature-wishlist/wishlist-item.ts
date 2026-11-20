@@ -5,6 +5,7 @@ import { PricePipe } from '../../../shared/ui';
 import { WishlistProduct } from '../util';
 import { ProblemDetails, toProblem } from '../../../shared/util';
 import { WishlistStore } from '../data-access';
+import { makeWishlistResource } from '../data-access/wishlist-api';
 
 @Component({
   imports: [RouterLink, PricePipe],
@@ -54,7 +55,13 @@ export class WishlistItem {
 
   protected readonly wishlistStore: WishlistStore = inject(WishlistStore);
 
-  product = httpResource<WishlistProduct>(() => '/api/products/' + this.slug());
+  product = makeWishlistResource(this.slug);
 
   problemDetail: Signal<ProblemDetails> = computed(() => toProblem(this.product.error()));
+
+  // constructor() {
+  //   setTimeout(() => {
+  //       // this.slug.se
+  //   }, 3000)
+  // }
 }
