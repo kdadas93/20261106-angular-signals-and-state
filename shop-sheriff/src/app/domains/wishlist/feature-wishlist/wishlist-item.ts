@@ -13,26 +13,30 @@ import { makeWishlistResource } from '../data-access/wishlist-api';
   styles: ``,
   // standalone: true,
   // changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<li class="list-group-item d-flex justify-content-between">
-    @if (product.isLoading()) {
+  template: ` <li class="list-group-item d-flex justify-content-between">
+    @if (productResource.isLoading()) {
       <!-- ładowanie -->
       <span class="text-body-secondary">Loading…</span>
-    } @else if (product.error()) {
+    } @else if (productResource.error()) {
       @if (problemDetail().status === 404) {
         <span class="text-danger">Product can not be found </span>
       } @else {
         <span class="text-danger">Could not load wishlist product :( </span>
-        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="product.reload()">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary"
+          (click)="productResource.reload()"
+        >
           Try again
         </button>
       }
-    } @else if (product.hasValue()) {
-      @let p = product.value();
-      <a [routerLink]="['/products', slug()]">{{ p.name }}</a>
-      @if (p.stock === 0) {
+    } @else if (productResource.hasValue()) {
+      @let p = product();
+      <a [routerLink]="['/products', slug()]">{{ p?.name }}</a>
+      @if (p?.stock === 0) {
         <span class="badge text-bg-secondary">Sold out</span>
       } @else {
-        {{ p.priceCents | price }}
+        {{ p?.priceCents | price }}
       }
       <button
         type="button"
@@ -40,10 +44,10 @@ import { makeWishlistResource } from '../data-access/wishlist-api';
         (click)="wishlistStore.toggleOnList(slug())"
       >
         <!-- <button
-        type="button"
-        class="btn btn-sm btn-outline-danger"
-        (click)="remove.emit(slug())"
-      > -->
+          type="button"
+          class="btn btn-sm btn-outline-danger"
+          (click)="remove.emit(slug())"
+        > -->
         Remove
       </button>
     }
@@ -55,9 +59,17 @@ export class WishlistItem {
 
   protected readonly wishlistStore: WishlistStore = inject(WishlistStore);
 
-  product = makeWishlistResource(this.slug);
+  productResource = makeWishlistResource(this.slug);
 
-  problemDetail: Signal<ProblemDetails> = computed(() => toProblem(this.product.error()));
+  product = computed<WishlistProduct | null>(() => {
+    if (this.productResource.hasValue()) {
+      const p = this.productResource.value();
+      return { ...p, sku: 'COS' };
+    }
+    return null;
+  });
+
+  problemDetail: Signal<ProblemDetails> = computed(() => toProblem(this.productResource.error()));
 
   // constructor() {
   //   setTimeout(() => {

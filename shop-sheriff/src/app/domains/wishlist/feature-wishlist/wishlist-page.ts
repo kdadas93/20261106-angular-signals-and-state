@@ -1,9 +1,16 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { FormField, FormRoot, form, required, minLength } from '@angular/forms/signals';
+import {
+  FormField,
+  FormRoot,
+  form,
+  required,
+  minLength,
+  validateHttp,
+} from '@angular/forms/signals';
 import { PageHeader } from '../../../shared/ui';
 import { WishlistToggle } from '../ui';
 import { WishlistStore } from '../data-access';
-import { WishlistDetails } from '../util';
+import { WishlistDetails, WishlistProduct } from '../util';
 import { WishlistItem } from './wishlist-item';
 
 // data-access ────────────────────────────────────────────────────────────────
@@ -86,6 +93,33 @@ const DEMO_SLUGS = [
         }
       </div>
 
+      <div>
+        @let giftSlug = detailsForm.giftSlug();
+        <label class="form-label" for="wishlist-gift">Gift idea (product slug, optional)</label>
+        <div class="input-group has-validation">
+          <input
+            id="wishlist-gift"
+            class="form-control font-monospace"
+            placeholder="e.g. typeforge-75-wireless-keyboard"
+            autocomplete="off"
+            [class.is-invalid]="giftSlug.touched() && giftSlug.invalid()"
+            [class.is-valid]="giftSlug.touched() && giftSlug.valid()"
+            [formField]="detailsForm.giftSlug"
+          />
+          <!-- trwa sprawdzanie - zobacz: detailsForm().pending() -->
+          @if (detailsForm().pending()) {
+            <span class="input-group-text">
+              <span class="spinner-border spinner-border-sm" aria-label="Checking…"></span>
+            </span>
+          }
+        </div>
+        @if (giftSlug.touched()) {
+          @for (error of giftSlug.errors(); track error.kind) {
+            <div class="invalid-feedback d-block">{{ error.message }}</div>
+          }
+        }
+      </div>
+
       <div class="d-flex gap-2">
         <button
           type="submit"
@@ -137,6 +171,14 @@ export class WishlistPage /*implements OnInit*/ {
     (p) => {
       required(p.name, { message: 'Name is required' });
       minLength(p.description, 5, { message: 'Description must be at least 5 characters' });
+
+      validateHttp<string, WishlistProduct>(p.giftSlug, {
+        request: ({ value }) => value() ? `/api/products/${value()}` : undefined,
+        debounce: 300,
+        onSuccess: (result) =>
+          result.id ? null : { kind: 'not-found', message: 'Slug not found' },
+        onError: () => ({ kind: 'not-found', message: 'Slug not found' }),
+      });
     },
     {
       submission: {
